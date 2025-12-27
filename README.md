@@ -74,3 +74,14 @@
 ![image-20251227150046576](C:/Users/dingpeng/AppData/Roaming/Typora/typora-user-images/image-20251227150046576.png)
 
 ![image-20251227150104026](C:/Users/dingpeng/AppData/Roaming/Typora/typora-user-images/image-20251227150104026.png)
+
+## 七、未来改进方向
+
+1. 目前其实没有将实现正确的三层架构，将service层代码单独提出来，实现真正的**低耦合、高内聚**
+2. 而且有些业务逻辑有待完善：
+	1. 当管理员驳回用户文章时应该给出理由
+	2. 当分类下有文章时不能删除该分类（2天速成下来的漏洞）
+	3. 其余有待发现
+
+
+
