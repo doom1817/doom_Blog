@@ -1,8 +1,8 @@
-# 个人博客系统（前后端）技术架构总结
+# 大学生期末作业之个人博客系统（前后端）技术架构
 
 ## 一、项目概述
 
-基于前后端分离架构的个人博客系统，后端提供核心接口服务，前端负责页面展示与交互，支持用户认证、文章管理、评论互动、分类管理、数据统计等完整功能。
+基于前后端分离架构sprinboot3+vue3的个人博客系统，后端提供核心接口服务，前端负责页面展示与交互，支持用户认证、文章管理、评论互动、分类管理、数据统计等完整功能。
 
 ## 二、技术栈详情
 
@@ -59,29 +59,29 @@
 
 ## 六、效果展示
 
-![image-20251227150001080](C:/Users/dingpeng/AppData/Roaming/Typora/typora-user-images/image-20251227150001080.png)
+![](展示图片/image-20251227150001080.png)
 
-![image-20251227150006046](C:/Users/dingpeng/AppData/Roaming/Typora/typora-user-images/image-20251227150006046.png)
+![image-20251227150006046](展示图片/image-20251227150006046.png)
 
-![image-20251227150014755](C:/Users/dingpeng/AppData/Roaming/Typora/typora-user-images/image-20251227150014755.png)
+![image-20251227150014755](展示图片/image-20251227150014755.png)
 
-![image-20251227150018996](C:/Users/dingpeng/AppData/Roaming/Typora/typora-user-images/image-20251227150018996.png)
+![image-20251227150018996](展示图片/image-20251227150018996.png)
 
-![image-20251227150029903](C:/Users/dingpeng/AppData/Roaming/Typora/typora-user-images/image-20251227150029903.png)
+![image-20251227150029903](展示图片/image-20251227150029903.png)
 
-![image-20251227150042749](C:/Users/dingpeng/AppData/Roaming/Typora/typora-user-images/image-20251227150042749.png)
+![image-20251227150042749](展示图片/image-20251227150042749.png)
 
-![image-20251227150046576](C:/Users/dingpeng/AppData/Roaming/Typora/typora-user-images/image-20251227150046576.png)
+![image-20251227150046576](展示图片/image-20251227150046576.png)
 
-![image-20251227150104026](C:/Users/dingpeng/AppData/Roaming/Typora/typora-user-images/image-20251227150104026.png)
+![image-20251227150104026](展示图片/image-20251227150104026.png)
 
 ## 七、未来改进方向
 
 1. 目前其实没有将实现正确的三层架构，将service层代码单独提出来，实现真正的**低耦合、高内聚**
 2. 而且有些业务逻辑有待完善：
-	1. 当管理员驳回用户文章时应该给出理由
-	2. 当分类下有文章时不能删除该分类（2天速成下来的漏洞）
-	3. 其余有待发现
+	- 当管理员驳回用户文章时应该给出理由
+	- 当分类下有文章时不能删除该分类（2天速成下来的漏洞）
+	- 其余有待发现
 
 
 
