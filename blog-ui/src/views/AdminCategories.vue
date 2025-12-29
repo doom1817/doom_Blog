@@ -70,8 +70,14 @@ const save = async () => {
   load();
 };
 const del = async (id) => {
-  await request.delete(`/admin/category/delete/${id}`);
-  load();
+  try {
+    await request.delete(`/admin/category/delete/${id}`);
+    ElMessage.success("删除成功");
+    load();
+  } catch (error) {
+    // 捕获后端返回的错误信息
+    ElMessage.error(error.response?.data?.message || "删除失败");
+  }
 };
 onMounted(load);
 </script>

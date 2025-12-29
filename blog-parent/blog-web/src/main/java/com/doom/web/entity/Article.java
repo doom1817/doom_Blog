@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
  * - userId: 作者ID，关联sys_user表
  * - status: 文章状态（0:待审核, 1:已发布, 2:已拒绝）
  * - viewCount: 点击量
+ * - rejectReason: 拒绝理由，仅当status为2时才不为空
  * - createTime: 创建时间，自动填充
  * - updateTime: 更新时间，自动填充
  *
@@ -41,6 +42,7 @@ public class Article {
     private Long userId;
     private Integer status;
     private Integer viewCount;
+    private String rejectReason;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

@@ -1,5 +1,7 @@
 package com.doom.web.controller;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.doom.web.entity.Article;
 import com.doom.web.entity.Category;
 import com.doom.web.mapper.ArticleMapper;
 import com.doom.web.mapper.CategoryMapper;
@@ -27,6 +29,8 @@ import org.springframework.web.bind.annotation.*;
 public class CategoryAdminController {
     @Autowired
     private CategoryMapper categoryMapper;
+    @Autowired
+    private ArticleMapper articleMapper;
 
     /**
      * 新增分类
@@ -54,6 +58,11 @@ public class CategoryAdminController {
      */
     @DeleteMapping("/delete/{id}")
     public Result<?> delete(@PathVariable Long id) {
+        Long articleCount = articleMapper.selectCount(Wrappers.<Article>lambdaQuery()
+                .eq(Article::getCategoryId, id));
+        if (articleCount > 0){
+            return Result.error("该分类下有"+articleCount+"文章，请先删除文章");
+        }
         categoryMapper.deleteById(id);
         return Result.success("删除成功");
     }

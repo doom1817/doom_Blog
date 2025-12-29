@@ -42,12 +42,12 @@
         <el-table-column
           prop="title"
           label="文章标题"
-          min-width="200"
+          width="150"
           show-overflow-tooltip
         />
 
-        <!-- 管理员模式下才显示的作者列 -->
-        <el-table-column v-if="isAdmin" label="作者" width="160">
+        <!-- 作者列 -->
+        <el-table-column label="作者" width="160">
           <template #default="scope">
             <div class="author-cell">
               <span class="nickname">{{ scope.row.nickname }}</span>
@@ -56,7 +56,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="分类" width="120">
+        <el-table-column label="分类" width="100">
           <template #default="scope">
             <el-tag size="small" type="info" effect="plain" class="custom-tag">
               {{ scope.row.categoryName || "未分类" }}
@@ -77,7 +77,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="status" label="状态" width="100" align="center">
+        <el-table-column prop="status" label="状态" width="90" align="center">
           <template #default="scope">
             <el-tag :type="getStatusType(scope.row.status)" effect="dark">
               {{ getStatusText(scope.row.status) }}
@@ -85,19 +85,46 @@
           </template>
         </el-table-column>
 
+        <!-- 驳回理由列 -->
+        <el-table-column label="驳回理由" width="150">
+          <template #default="scope">
+            <div v-if="scope.row.status === 2" class="reject-reason">
+              <el-popover
+                placement="top"
+                :width="300"
+                trigger="hover"
+                :content="scope.row.rejectReason"
+              >
+                <template #reference>
+                  <span class="reject-text" :title="scope.row.rejectReason">
+                    <el-icon class="icon-warning"><WarningFilled /></el-icon>
+                    {{ scope.row.rejectReason || "无理由" }}
+                  </span>
+                </template>
+              </el-popover>
+            </div>
+            <span v-else class="no-reason">-</span>
+          </template>
+        </el-table-column>
+
         <el-table-column
           prop="createTime"
           label="发布时间"
-          width="170"
+          width="200"
           sortable
-        />
+          align="center"
+        >
+          <template #default="scope">
+            {{ formatDateTime(scope.row.createTime) }}
+          </template>
+        </el-table-column>
 
-        <el-table-column label="操作" width="160" fixed="right">
+        <el-table-column label="操作" width="240">
           <template #default="scope">
             <el-button-group>
               <!-- 仅文章作者本人可以编辑 -->
               <el-button
-                v-if="scope.row.userId == currentUserId"
+                v-if="parseInt(scope.row.userId) === parseInt(currentUserId)"
                 size="small"
                 icon="Edit"
                 @click="handleEdit(scope.row)"
@@ -203,11 +230,12 @@ import {
   View,
   Edit,
   Delete,
+  WarningFilled,
 } from "@element-plus/icons-vue";
 
 // 权限信息
 const isAdmin = ref(localStorage.getItem("role") === "ADMIN");
-const currentUserId = ref(localStorage.getItem("id"));
+const currentUserId = ref(localStorage.getItem("userId"));
 
 // 数据定义
 const myArticles = ref([]);
@@ -264,6 +292,12 @@ const getStatusText = (status) => {
   return map[status] || "未知";
 };
 
+// 格式化时间，去掉中间的T
+const formatDateTime = (dateTimeStr) => {
+  if (!dateTimeStr) return "";
+  return dateTimeStr.replace("T", " ");
+};
+
 const handleAdd = () => {
   form.value = {
     id: null,
@@ -300,10 +334,10 @@ const save = async () => {
 };
 
 const handleDelete = (row) => {
-  const isOwner = row.userId == currentUserId.value;
+  const isOwner = parseInt(row.userId) === parseInt(currentUserId.value);
   const message = isOwner
-    ? "确定要删除这篇文章吗？"
-    : `您正在以管理员身份强制删除用户 [${row.nickname}] 的文章，确定吗？`;
+    ? `您确定要删除该《${row.title}》文章吗？`
+    : `您正在以管理员身份强制删除用户 [${row.nickname}] 的文章《${row.title}》，确定吗？`;
 
   ElMessageBox.confirm(message, "警告", {
     confirmButtonText: "确定删除",
@@ -325,7 +359,8 @@ onMounted(() => {
 <style scoped>
 .user-articles-container {
   padding: 10px;
-  width: 1400px;
+  width: 100%;
+  max-width: 1400px;
   margin: 0 auto;
 }
 .box-card,
@@ -358,13 +393,16 @@ onMounted(() => {
 .author-cell {
   display: flex;
   flex-direction: column;
+  padding: 8px 0;
 }
 .nickname {
-  font-weight: bold;
+  font-weight: 600;
   color: #70c5ff;
+  font-size: 14px;
+  margin-bottom: 2px;
 }
 .username {
-  font-size: 11px;
+  font-size: 12px;
   color: #999;
 }
 
@@ -373,6 +411,9 @@ onMounted(() => {
   background-color: #f0f9ff !important;
   color: #70c5ff !important;
   border-color: #d1ecff !important;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 4px 12px;
 }
 :deep(.el-button--primary) {
   background-color: #70c5ff !important;
@@ -383,25 +424,268 @@ onMounted(() => {
   border-color: #8cd1ff !important;
 }
 .view-count-text {
-  color: #909399;
-  font-size: 13px;
+  color: #606266;
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
+  font-weight: 500;
 }
 
+/* 驳回理由样式 */
+.reject-reason {
+  display: flex;
+  align-items: center;
+}
+
+.reject-text {
+  color: #f56c6c;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 4px 8px;
+  background-color: #fef0f0;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.reject-text:hover {
+  background-color: #fde2e2;
+  transform: translateY(-1px);
+}
+
+.icon-warning {
+  color: #f7ba2a;
+  font-size: 14px;
+}
+
+.no-reason {
+  color: #c0c4cc;
+  font-size: 13px;
+}
+
+/* 表格美化样式 */
+:deep(.el-table) {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+}
+
+:deep(.el-table__header-wrapper) {
+  border-radius: 8px 8px 0 0;
+}
+
+:deep(.el-table th.el-table__cell) {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e8f4ff 100%) !important;
+  color: #2c3e50 !important;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 16px 0;
+  border-bottom: 2px solid #d1ecff;
+}
+
+:deep(.el-table td.el-table__cell) {
+  padding: 14px 0;
+  border-bottom: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+:deep(.el-table__body tr:hover > td) {
+  background-color: #f5faff !important;
+  transform: scale(1.002);
+  box-shadow: 0 2px 8px rgba(112, 197, 255, 0.15);
+}
+
+:deep(.el-table__body tr) {
+  transition: all 0.3s ease;
+}
+
+/* 斑马纹效果 */
+:deep(.el-table--enable-row-hover .el-table__body tr:hover > td) {
+  background-color: #f5faff !important;
+}
+
+:deep(.el-table__row--striped td) {
+  background-color: #fafbfc !important;
+}
+
+:deep(.el-table__row--striped:hover td) {
+  background-color: #f5faff !important;
+}
+
+/* 表格内容样式 */
+:deep(.el-table .cell) {
+  padding: 0 12px;
+  line-height: 1.6;
+}
+
+/* ID列样式 */
+:deep(.el-table .el-table__cell:first-child) {
+  text-align: center;
+  color: #909399;
+  font-weight: 500;
+}
+
+/* 标题列样式 */
+:deep(.el-table .el-table__cell:nth-child(2)) {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+/* 状态标签美化 */
+:deep(.el-tag) {
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-weight: 500;
+  font-size: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+:deep(.el-tag--success) {
+  background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
+  border-color: #67c23a;
+}
+
+:deep(.el-tag--warning) {
+  background: linear-gradient(135deg, #e6a23c 0%, #f0c78a 100%);
+  border-color: #e6a23c;
+}
+
+:deep(.el-tag--danger) {
+  background: linear-gradient(135deg, #f56c6c 0%, #f89898 100%);
+  border-color: #f56c6c;
+}
+
+:deep(.el-tag:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* 操作按钮组美化 */
+:deep(.el-button-group) {
+  display: flex;
+  gap: 8px;
+}
+
+:deep(.el-button--small) {
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+:deep(.el-button--small:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 删除按钮样式 - 使用更具体的选择器 */
+:deep(.el-button--small.el-button--danger) {
+  background: linear-gradient(135deg, #f56c6c 0%, #f89898 100%);
+  border-color: #f56c6c;
+  color: #fff;
+}
+
+:deep(.el-button--small.el-button--danger:hover) {
+  background: linear-gradient(135deg, #f78989 0%, #fab6b6 100%);
+  border-color: #f78989;
+}
+
+/* 编辑按钮样式 - 使用更具体的选择器 */
+:deep(.el-button--small:not(.el-button--danger)) {
+  background: linear-gradient(135deg, #70c5ff 0%, #8cd1ff 100%);
+  border-color: #70c5ff;
+  color: #fff;
+}
+
+:deep(.el-button--small:not(.el-button--danger):hover) {
+  background: linear-gradient(135deg, #8cd1ff 0%, #a8dfff 100%);
+  border-color: #8cd1ff;
+}
+
+/* 图标样式 */
+:deep(.el-icon) {
+  vertical-align: middle;
+}
+
+/* 加载动画 */
+:deep(.el-loading-mask) {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+}
+
+:deep(.el-loading-spinner .circular) {
+  width: 42px;
+  height: 42px;
+}
+
+/* 对话框美化 */
 :deep(.el-dialog) {
   border-radius: 16px;
   overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 :deep(.el-dialog__header) {
-  padding: 20px;
-  background-color: #f0f9ff;
+  padding: 24px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e8f4ff 100%);
   margin-right: 0;
+  border-bottom: 1px solid #d1ecff;
 }
 :deep(.el-dialog__title) {
   color: #70c5ff;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 18px;
+}
+:deep(.el-dialog__body) {
+  padding: 24px;
+}
+:deep(.el-dialog__footer) {
+  padding: 16px 24px;
+  background-color: #fafbfc;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* 搜索框美化 */
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+:deep(.el-input__wrapper:hover) {
+  box-shadow: 0 4px 12px rgba(112, 197, 255, 0.2);
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 4px 12px rgba(112, 197, 255, 0.3);
+}
+
+/* 卡片阴影优化 */
+:deep(.el-card__body) {
+  padding: 20px;
+}
+
+/* 时间列样式 */
+:deep(.el-table .el-table__cell:nth-last-child(3)) {
+  color: #606266;
+  font-size: 13px;
+}
+
+/* 响应式优化 */
+@media (max-width: 1440px) {
+  .user-articles-container {
+    width: 100%;
+    padding: 10px 20px;
+  }
 }
 </style>

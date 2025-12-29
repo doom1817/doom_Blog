@@ -1,7 +1,7 @@
 package com.doom.web.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.doom.web.entity.Article;
 import com.doom.web.mapper.ArticleMapper;
@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -61,15 +60,20 @@ public class ArticleAdminController {
      *   - 0: 待审核
      *   - 1: 已通过（公开可见）
      *   - 2: 已拒绝（不可见）
-     *
-     * @param article 包含文章ID和目标状态的对象
+     * 为文章增加驳回理由
+     * @param article 包含文章ID，目标状态,驳回理由的对象
      * @return Result包装的操作结果
      */
     @PostMapping("/audit")
-    public Result<?> audit(@RequestBody Article article) {
-        articleMapper.update(null, Wrappers.<Article>lambdaUpdate()
-                .set(Article::getStatus, article.getStatus())
-                .eq(Article::getId, article.getId()));
+    public Result<?> audit(@RequestBody Article  article) {
+            LambdaUpdateWrapper<Article> updateWrapper = Wrappers.<Article>lambdaUpdate()
+                    .set(Article::getStatus, article.getStatus())
+                    .eq(Article::getId, article.getId());
+            //当状态为2，保存驳回理由
+        if (article.getStatus() == 2){
+            updateWrapper.set(Article::getRejectReason, article.getRejectReason());
+        }
+        articleMapper.update(article, updateWrapper);
         return Result.success("审核操作已完成");
     }
 

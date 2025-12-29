@@ -33,6 +33,7 @@ CREATE TABLE `blog_article` (
   `user_id` bigint NOT NULL COMMENT '作者ID',
   `status` tinyint DEFAULT '0' COMMENT '状态 0:待审核 1:已发布 2:下架/拒绝',
   `view_count` int DEFAULT '0' COMMENT '点击量',
+  `reject_reason` varchar(200) DEFAULT NULL COMMENT '驳回理由',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -51,7 +52,4 @@ CREATE TABLE `blog_comment` (
   KEY `idx_article` (`article_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 初始化默认数据 (admin 密码建议后续在代码中用 BCrypt 处理，这里先存明文或特定密文)
 
-
-INSERT INTO `sys_category` (`name`, `sort`) VALUES ('技术栈', 1), ('生活', 2), ('面试题', 3);
